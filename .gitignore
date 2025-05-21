@@ -1,0 +1,28 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+env/
+
+# Environment variables
+.env
+
+# Pytest, coverage
+.cache/
+.coverage
+htmlcov/
+*.cover
+
+# Flask default logs
+instance/
+*.log
+
+# VSCode & other IDE settings
+.vscode/
+.idea/
+
+# MacOS
+.DS_Store
