@@ -35,20 +35,25 @@ def save_to_db(ticker, predictions):
     try:
         conn = pymysql.connect(**db_config)
         with conn.cursor() as cursor:
-            sql = """
+            # 기존 ticker에 대한 데이터 삭제
+            delete_sql = "DELETE FROM prediction WHERE ticker = %s"
+            cursor.execute(delete_sql, (ticker,))
+
+            # 새로운 데이터 삽입
+            insert_sql = """
                 INSERT INTO prediction (
                     after_price, atOpen_price, higher_price, lower_price,
                     volumn, ticker, name, refresh_date
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """
-            cursor.execute(sql, (
+            cursor.execute(insert_sql, (
                 pred_close,
                 pred_open,
                 pred_high,
                 pred_low,
                 pred_volume,
                 ticker,
-                ticker,  # name 컬럼에 심볼과 동일하게 저장
+                ticker,
                 refresh_time
             ))
             conn.commit()
@@ -56,6 +61,7 @@ def save_to_db(ticker, predictions):
         logging.info(f"✅ {ticker} 예측 결과 저장 완료.")
     except Exception as e:
         logging.error(f"❌ DB 저장 실패 ({ticker}): {e}")
+
 
 # 모든 티커에 대해 반복 실행
 for ticker in TICKERS:
