@@ -15,9 +15,6 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            echo "🚀 Flask 앱 배포 시작"
             cd /stock4u/stock4u_backend_flask
-            pip install -r requirements.txt
-            pkill -f app.py || true
-            nohup python3 app.py > flask.log 2>&1 &
-            echo "✅ 배포 완료"
+            chmod +x deploy.sh
+            ./deploy.sh
