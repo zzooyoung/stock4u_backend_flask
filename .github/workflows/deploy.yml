@@ -17,4 +17,4 @@ jobs:
           script: |
             cd /stock4u/stock4u_backend_flask
             chmod +x deploy.sh
-            ./deploy.sh
+            ./deploy/deploy.sh
