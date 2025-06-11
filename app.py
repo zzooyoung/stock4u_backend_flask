@@ -5,10 +5,14 @@ from dotenv import load_dotenv
 import requests
 import logging
 import json
+from flask_cors import CORS
+
+
 # .env 파일 로드
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 # 로깅 설정
 logging.basicConfig(
@@ -121,6 +125,8 @@ def get_multiple_stock_data():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=15000, debug=True)
