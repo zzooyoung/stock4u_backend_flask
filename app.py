@@ -126,7 +126,44 @@ def get_multiple_stock_data():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/predict", methods=["POST"])
+def get_predictions():
+    data = request.get_json()
+    tickers = data.get("tickers")
 
+    if not tickers or not isinstance(tickers, list):
+        return jsonify({"error": "tickers must be a list"}), 400
+
+    predictions = []
+
+    try:
+        conn = pymysql.connect(**db_config)
+        with conn.cursor() as cursor:
+            for ticker in tickers:
+                sql = """
+                    SELECT after_price, higher_price, lower_price
+                    FROM prediction
+                    WHERE ticker = %s
+                    ORDER BY refresh_date DESC
+                    LIMIT 1
+                """
+                cursor.execute(sql, (ticker,))
+                result = cursor.fetchone()
+
+                if result:
+                    predictions.append({
+                        "symbol": ticker,
+                        "predicted_close": result["after_price"],
+                        "predicted_high": result["higher_price"],
+                        "predicted_low": result["lower_price"]
+                    })
+
+        conn.close()
+        return jsonify(predictions)
+
+    except Exception as e:
+        print(f"[ERROR] /predict 실패: {e}")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=15000, debug=True)
