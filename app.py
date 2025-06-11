@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 import requests
 import logging
-
+import json
 # .env 파일 로드
 load_dotenv()
 
@@ -82,6 +82,45 @@ def add_user():
         return jsonify({"message": "User added successfully"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/stock-data', methods=['POST'])
+def get_stock_data():
+    try:
+        data = request.get_json()
+        ticker = data.get('ticker')
+
+        if not ticker:
+            return jsonify({"error": "Missing ticker in request"}), 400
+
+        file_path = f"./input_data/{ticker}_input.json"
+
+        if not os.path.exists(file_path):
+            return jsonify({"error": f"No data file found for ticker '{ticker}'"}), 404
+
+        with open(file_path, 'r') as f:
+            json_data = json.load(f)
+
+        raw_instances = json_data.get("instances", [[]])[0]
+
+        # 구조 변환: [{open, high, low, close, volume}, ...]
+        formatted_data = [
+            {
+                "symbol": ticker,
+                "open": row[0],
+                "high": row[1],
+                "low": row[2],
+                "close": row[3],
+                "volume": row[4]
+            }
+            for row in raw_instances
+        ]
+
+        return jsonify(formatted_data)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=15000, debug=True)
